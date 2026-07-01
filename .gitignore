@@ -1,0 +1,11 @@
+task1/Frontend
+task1/Backend
+task2/Sandbox
+task2/test-binaries/safe_program
+task2/test-binaries/infinite_loop
+task2/test-binaries/cpu_hog
+task2/test-binaries/slow_program
+*.o
+*.exe
+*.log
+.vscode/
