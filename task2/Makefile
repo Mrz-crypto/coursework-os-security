@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Wpedantic -std=c11 -D_GNU_SOURCE
+CFLAGS=-Wall -Wextra -Wpedantic -std=c11
 PTHREAD=-pthread
 
 TEST_DIR=test-binaries
