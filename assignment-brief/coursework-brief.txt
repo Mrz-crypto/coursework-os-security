@@ -1,0 +1,211 @@
+fMntentA
+b •ssigeumen Ieydfua-de
+b •ssmssm  Ad ctm Mmafeieg Lcnodums
+b •ssigeumen Tasp
+b Aafpieg ae  Omm .aop
+b •ssigeumen rc--dfn ae  •oa muio Ienmgfinl
+b •ssmssumen Aafpieg Cfinmfia
+ AAsingent FnrMBgoaMn
+UMdule Ooge:
+UMdule fMde:
+Ffdgfauuieg ae  L-mfa-eg rlsnmus
+rTP503CA9
+ AAsingent Estle:
+ AAsingent Iue:
+rTP503CA9 Ffdgfauuieg ae  L-mfa-eg rlsnmus Aafoh Ienapm D5D2 
+Cdcfsmwdfp C6W 1(mgctafR
+)ct 0WJ D5D2
+ AAsingent fBedst:
+WMBd fMunt:
+WP
+D555
+ AAsingent Eype:
+Cdcfsmwdfp , Ie i:i cat (m-dfn
+GBodsni:
+ AAeAAgent CveBvsew
+Fmfomenagm vfa m1•--tim  Cdfm •ssmssumenRk
+Gdc witt .m -fd:i m  winh ae d:mfatt gfa m .mnwmme 5Y ae  W55Yk Gdc ha:m dem d--dfnceinl nd -ass nhm
+assigeumen an df a.d:m %5Yk
+FgpMBtont OMace
+Thm wdfp ldc sc.uin ydf nhis assigeumen ucsn .m ldcf Mwn sndependent wMBkk Adfm ieydfua-de is
+a:aita.tm ie nhm 4•ssigeumen Tasp4 smo-de dy nhis assigeumen .fimyk
+ AAeAAed UMdule TeoBnsni CutcMgeA
+Thm Mmafeieg Lcnodums ydf nhis ud ctm atige winh nhm uafpieg ofinmfia whioh oae .m ydce  an nhm me  dy
+nhis .fimyk Eescfm ldc ce mfsnae  nhm uafpieg ofinmfia nd mescfm scoomssyct aohim:mumen dy nhm
+assmssumen naspk Thm ydttdwieg ud ctm tmafeieg dcnodums afm assmssm  ie nhis nasp
+On completion of this module the student should be able to:
+1. Describe the theoretical aspects that apply to the C/C++ programming language;
+2. Develop and design sof tware based upon a design to meet a given specif ication;
+3. Identify the concepts behind an Operating Systems (OS) behaviour, and the role of the OS when
+interacting with computer systems;
+4. Develop sof tware that operates in a multi-process environment, working with multiple threads 
+and
+processes that may share data.
+ AAsingent EoAk
+These are implementation-driven investigation questions. The only way to 
+answer them properly is to write C program and observe OS behavior. 
+TASK 1:(40%) - 2000 words
+" Privilege separation in Password validation (Process Isolation and 
+Secure Design)"
+In this task, you will develop and test a privilege separated authentication 
+service that distributes responsibility across various operating system 
+processess. One process accepts user input, while another executes crucial 
+validation procedures before permanently relinquishing enchanced privileges. 
+Your solution must be written in C program and based on operating system 
+techniques rather than application level abstractions. 
+The objective of this task is to investigate how process isolation, inter 
+process communicatoin, privilege management, and secure memory 
+handling can be used to implement the principle of least privilege on a 
+Unix based operating system.
+Write at least two C programs:
+1. Frontend.c
+2. Backend.c
+Use:
+1. Process Isolation - two distinct executables eg, fork(), execve()
+2. Secure IPC - credentials passed via UNIX domain socket, syscalls
+3. Privilege dropping ( setuid / setresuid ) - Backend  calls, Runtime check
+4. Attack resistance - Backend rejecting requests, if not a validation 
+5. Shared memory for safety - Password buffer, Disassembly
+If there is no working program, the task is incomplete.
+Deliverables:
+1. Two independent processess, not thread.
+2. Actual setresuid( ) call
+3. Runtime check using geteuid( ) or / proc
+Investigation Questions:
+Your are also required to document your analysis and verification that 
+would answer the following questions:
+1. 
+why is it considered insecure for a single process to receive user input and access sensiteve 
+authencition data on a Linux system?
+2. How can the principle of least privilee be enforced at the operating system level using multiple 
+processess rather than threads?
+3. What risks remain if privilege dropping is incorrectly implemented?
+4. How can two independent processess securely exchange authentication requests and results 
+without exposing sensitive data to unauthorized processess?
+5. Why are UNIX domain sockets preferable to network sockets for local privileged 
+communication?
+6. What operating system mechanisms allow controlled sharing of data between processess 
+without violating isolation?
+7. How can a process permanently relinquish root privileges after startup, and why must this be 
+irreversible?
+8. What observation system indicators can be used to verify that privilege dropping has 
+succeeded?
+9. How would an attacker benefit if a process unintentionally retained elevated privileges?
+10. Why is clearing sensitive data from memory as security requirement even after authentication 
+is complete?
+11. Why can standard memory clearing functions be unreliable according to the C language 
+memory model?
+12. How does the use of explicit memory primitives mitigate this risk?
+TASK 2: (50%) - 3000 Words
+" User Space Malware Analysis Sandbox (Process Control, Resource 
+Isolation and Concurrency ) "
+Security researchers routinely use untrusted binaries to watch behavior and 
+assess risk. Running such programs directly on a host system without isolation 
+may result in system compromise, resource depletion, or data exfiltration. 
+This work requires you to design and build a user space sandbox that runs 
+untrusted application under stringent monitoring. The sandbox must rely on 
+operating system process management and concurrency capabilities, rather 
+than theoritical debate or signature based malware detection. This work 
+focuses on how the operating system imposes control, rather than malware 
+classificaton. 
+The objective of this task is to investigaet how parent child process 
+isolation, external resource monitoring, signals, and concurrency can be 
+combined to limit the behavior of untrusted executables.
+Implementation:
+You must develop a sandbox controller using C programming that:
+1. Fork( ) creates a child process, and execve( ) executes an unsafe binary. 
+2. Supervises the child process after the parent process.
+3. Monitors execution time and resource utilization from the outside. 
+4. Uses operating system signals to enforce termination policies. 
+5. To execute concurrent monitoring activities, the supervising process makes use of several 
+threads (pthreads)
+The untrusted binary must not take part in its own monitorin or 
+termination.
+Analysis and Observation:
+1. Why is parent child isolation? Parent terminates child 
+2. Why race free shared state?
+3. Why forced termination?
+Deliverables:
+1. Sandbox.c
+2. Test Binaries
+3. Logs showing termination
+Investigation Questions:
+You are required to investigate and demonstrate with reference to your 
+implementation and execution evidience following the question below:
+1. Why is process level isolation preferred over in process containment for executing untrusted 
+binaries?
+2. How does the parent-child process model support monitoring and enforcement of execution 
+policies?
+3. What security assumptions change when untrusted code is executed via execve( )?
+4. How can CPU usage and execution time be measured externally by supervising process?
+5. Why must time based enforcement be independent of the monitored process's cooperation?
+6. What role do signals play in enforcing termination policies?
+7. Why is concurrency required in a sandbox monitoring system?
+8. How can shared state between monitoring threads introduce subtle race condition?
+9. Why does the C language memory model require atomic operations rather than volatile 
+variables for synchronizations?
+10. How could timing channels or side effects be used to bypass sandbox restrictions?
+11. Why is understanding these limitations critical in real world malware analysis?
+References 5%
+Include academic references such as books, websites and research 
+papers used. 
+Format 5%
+Ensure proper presentation, grammar and adherence to a suitable 
+referencing style. 
+In addition to your written report, you must upload all practical work, 
+diagrams, scripts and supporting files for Task 1 and Task 2 to a public 
+Gitbhub repository. This includes( but is not limited to ):
+1. Source code for any simulations, scripts or demonstrations.
+2. Diagrams
+3. README.md explains how to interpret your work Task1 and Task2.
+Your Github repository must be publicly accessible and submitted 
+alongside your report. 
+SubgsAAsMn FnAtBucaMnA
+(m'cifmumen
+Nsle Oogsni
+9mnaits
+q•AENsnc menI9
+Nsle NMBgot
+SubgsAAsMn UethMd
+k do_xk- y ydfuan
+UoBksni ond Needbock
+Cau-cs %k5 -ta/dfu 1sc.uisside tiep -fd:i m  D wmmps .mydfm  ma tiemR
+HMw wsll gy oAAsingent be goBked?
+Gdcf assigeumen witt .m uafpm  .l nhm Ad ctm Tmau csieg snae af izm  ofinmfiak
+HMw wsll F Becesve iBodeA ond reedbock?
+Ffd:isideat uafps witt .m fmtmasm  deom ienmfeattl ud mfanm k Omm .aop witt .m -fd:i m  atdegsi m gfa ms 
+fmtmasm winhie D wmmps 1W5 wdfpieg  alsRk
+Whot wsll F be goBked oiosnAt?
+9mnaits dy nhm uafpieg ofinmfia ydf nhis nasp oae .m ydce  ie nhm •ssmssumen Aafpieg Cfinmfia smo-de an nhm me  
+dy nhis .fimyk
+GBode RequsBegentA
+Gdc ucsn aohim:m %5Y df a.d:m nd -ass nhis assmssumenk Eescfm ldc ce mfsnae  nhm uafpieg ofinmfia ydf 
+scoomssyct odu-tm-dek
+ AAsingent SuppMBt ond  codegsc FnteiBsty
+Gexni Help
+Iy ldc ha:m ael 'cms-des a.dcn nhis assigeumenJ -tmasm ummn ldcf fms-mo-:m ud ctm tma mf df nmaohmf ydf 
+udfm ieydfua-dek
+Toniuoie StondoBdA
+Gdc afm m_-monm  nd csm mffmo-:mJ aoocfanmJ ae  a--fd-fianm taegcagm winhie nhis assmssumen naspk
+ codegsc FnteiBsty
+Thm wdfp ldc sc.uin ucsn .m ldcf dwek •tt sdcfoms dy ieydfua-de emm  nd .m aopedwtm gm  ae 
+a;fi.cnm fi nhmfmydfmJ ldc ucsn -fd:i m fmymfmeoms ydf att sdcfoms dy ieydfua-de ae  aopedwtm gm ael
+nddts csm  ie nhm -fd co-de dy ldcf wdfpJ eficludsni  Ba(csol Fntellsience ) F& k
+6m csm  mnmo-de sdSwafm ae  uapm fdc-em ohmops ydf m:i meom dy aoa muio uisode conk 9mffiei-des
+dy aoa muio uisode conJ ieotc ieg -tagiafisuJ smty--tagiafisuJ ae  odttcside oae .m ydce  ie rnc men
+hae .ddp ie Cau-cs %k5k
+•tt oasms dy scs-monm  aoa muio uisode con afm fmymffm  nd ydf ie:ms-ga-deJ nhm dcnodums dy whioh oae
+ha:m -fdydce  odesm'cmeoms nd ldcf snc imsk
+SuppMBt rMB StudentA wsth IsAobslsaeA
+Iy ldc ha:m a  isa.itinlJ tdeg-nmfu hmatnh ode i-deJ s-moiffio tmafeieg  iffmfmeomJ umenat hmatnh  iagedsis df 
+slu-ndusJ odenaon nhm rnc men rc--dfn LHom ydf assisnaeomk
+Lnoble tM Subgst Mn Esge?
+Iy m:mens -fm:men ldc yfdu sc.ui—eg de -umJ gci aeom de m_nmeca-eg oifocusnaeoms is a:aita.tm ie nhm 
+rnc men |ae .ddp df yfdu nhm rnc men rc--dfn LHomk
+ dgsnsAtBoaMn Mr  AAeAAgent
+UMdule TeodeB Ooge:
+UMdule TeodeB Dgosl:
+ AAsingent foteiMBy: -egpt Eype: 
+fmgctaf
+fMgpMnent fMde: 
+ow
