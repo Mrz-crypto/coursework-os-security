@@ -1,0 +1,20 @@
+flowchart TD
+    A["User runs Sandbox with test binary"] --> B["Parent calls fork"]
+    B --> C["Child process"]
+    B --> D["Parent supervisor"]
+    C --> E["Child calls execve"]
+    E --> F["Untrusted binary runs"]
+
+    D --> G["Wait thread"]
+    D --> H["Wall-clock monitor thread"]
+    D --> I["CPU monitor thread"]
+
+    G --> J["Records exit status"]
+    H --> K["Checks elapsed time"]
+    I --> L["Reads /proc/<pid>/stat CPU ticks"]
+
+    K --> M["Limit exceeded"]
+    L --> M
+    M --> N["Parent sends SIGTERM"]
+    N --> O["Parent sends SIGKILL if needed"]
+    O --> J

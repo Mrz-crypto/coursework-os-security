@@ -1,16 +1,13 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
-#include <fcntl.h>
 #include <pwd.h>
-#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -28,10 +25,10 @@ struct auth_response {
     char message[128];
 };
 
-static void secure_bzero(void *ptr, size_t len)
+static void clear_memory(void *data, size_t size)
 {
-    volatile unsigned char *p = (volatile unsigned char *)ptr;
-    while (len--) {
+    volatile unsigned char *p = data;
+    while (size--) {
         *p++ = 0;
     }
 }
@@ -42,7 +39,28 @@ static void die(const char *message)
     exit(EXIT_FAILURE);
 }
 
-static int open_server_socket(void)
+static void show_proc_uid(const char *label)
+{
+    char line[256];
+    FILE *file = fopen("/proc/self/status", "r");
+
+    printf("[backend] %s effective uid: %d\n", label, geteuid());
+
+    if (file == NULL) {
+        return;
+    }
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strncmp(line, "Uid:", 4) == 0) {
+            printf("[backend] %s /proc: %s", label, line);
+            break;
+        }
+    }
+
+    fclose(file);
+}
+
+static int make_server_socket(void)
 {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -55,15 +73,13 @@ static int open_server_socket(void)
     strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
 
     unlink(SOCKET_PATH);
-
     if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         die("bind");
     }
 
-    const char *sudo_uid = getenv("SUDO_UID");
-    if (sudo_uid != NULL) {
-        uid_t owner = (uid_t)strtoul(sudo_uid, NULL, 10);
-        if (chown(SOCKET_PATH, owner, getgid()) < 0) {
+    if (getenv("SUDO_UID") != NULL) {
+        uid_t user_uid = (uid_t)strtoul(getenv("SUDO_UID"), NULL, 10);
+        if (chown(SOCKET_PATH, user_uid, getgid()) < 0) {
             die("chown");
         }
     }
@@ -72,14 +88,14 @@ static int open_server_socket(void)
         die("chmod");
     }
 
-    if (listen(fd, 8) < 0) {
+    if (listen(fd, 5) < 0) {
         die("listen");
     }
 
     return fd;
 }
 
-static uid_t choose_unprivileged_uid(void)
+static uid_t nobody_uid(void)
 {
     struct passwd *nobody = getpwnam("nobody");
     if (nobody != NULL) {
@@ -89,104 +105,107 @@ static uid_t choose_unprivileged_uid(void)
     return getuid();
 }
 
-static void permanently_drop_privileges(void)
+static void drop_privileges(void)
 {
-    uid_t target = choose_unprivileged_uid();
+    uid_t uid = nobody_uid();
 
-    printf("[backend] effective uid before drop: %d\n", geteuid());
+    show_proc_uid("before drop");
 
-    if (setresuid(target, target, target) != 0) {
+    if (setresuid(uid, uid, uid) != 0) {
         die("setresuid");
     }
 
-    printf("[backend] effective uid after drop: %d\n", geteuid());
+    show_proc_uid("after drop");
 
     if (setuid(0) == 0) {
-        fprintf(stderr, "[backend] ERROR: process regained root privileges\n");
+        fprintf(stderr, "[backend] error: root privileges came back\n");
         exit(EXIT_FAILURE);
     }
 
-    printf("[backend] privilege drop is irreversible in this process\n");
+    printf("[backend] root privileges cannot be regained\n");
 }
 
-static bool validate_credentials(const struct auth_request *request)
-{
-    const char expected_user[] = "student";
-    const char expected_password[] = "Coursework123!";
-
-    return strcmp(request->username, expected_user) == 0 &&
-           strcmp(request->password, expected_password) == 0;
-}
-
-static int get_peer_uid(int client_fd)
+static int peer_uid(int fd)
 {
     struct ucred cred;
     socklen_t len = sizeof(cred);
 
-    if (getsockopt(client_fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) == -1) {
+    if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &cred, &len) != 0) {
         return -1;
     }
 
     return (int)cred.uid;
 }
 
-static void handle_client(int client_fd)
+static bool valid_login(const struct auth_request *request)
 {
-    struct auth_request request;
+    return strcmp(request->username, "student") == 0 &&
+           strcmp(request->password, "Coursework123!") == 0;
+}
+
+static void reply(int fd, int success, const char *message)
+{
     struct auth_response response;
 
-    memset(&request, 0, sizeof(request));
     memset(&response, 0, sizeof(response));
+    response.success = success;
+    snprintf(response.message, sizeof(response.message), "%s", message);
 
-    int peer_uid = get_peer_uid(client_fd);
-    printf("[backend] request from peer uid: %d\n", peer_uid);
+    if (write(fd, &response, sizeof(response)) != sizeof(response)) {
+        perror("write");
+    }
+}
 
-    ssize_t bytes = read(client_fd, &request, sizeof(request));
+static void handle_client(int fd)
+{
+    struct auth_request request;
+    ssize_t bytes;
+    int uid;
+
+    memset(&request, 0, sizeof(request));
+
+    uid = peer_uid(fd);
+    printf("[backend] request from uid: %d\n", uid);
+    if (uid < 0) {
+        reply(fd, 0, "Rejected: peer credentials not available");
+        return;
+    }
+
+    bytes = read(fd, &request, sizeof(request));
     if (bytes != sizeof(request)) {
-        response.success = 0;
-        snprintf(response.message, sizeof(response.message),
-                 "Rejected: malformed authentication request");
-        write(client_fd, &response, sizeof(response));
-        secure_bzero(&request, sizeof(request));
+        reply(fd, 0, "Rejected: malformed request");
+        clear_memory(&request, sizeof(request));
         return;
     }
 
     request.username[MAX_USERNAME - 1] = '\0';
     request.password[MAX_PASSWORD - 1] = '\0';
 
-    if (strlen(request.username) == 0 || strlen(request.password) == 0) {
-        response.success = 0;
-        snprintf(response.message, sizeof(response.message),
-                 "Rejected: empty username or password");
-    } else if (validate_credentials(&request)) {
-        response.success = 1;
-        snprintf(response.message, sizeof(response.message),
-                 "Authentication successful");
+    if (request.username[0] == '\0' || request.password[0] == '\0') {
+        reply(fd, 0, "Rejected: empty username or password");
+    } else if (valid_login(&request)) {
+        reply(fd, 1, "Authentication successful");
     } else {
-        response.success = 0;
-        snprintf(response.message, sizeof(response.message),
-                 "Authentication failed");
+        reply(fd, 0, "Authentication failed");
     }
 
-    if (write(client_fd, &response, sizeof(response)) != sizeof(response)) {
-        perror("write");
-    }
-
-    secure_bzero(&request, sizeof(request));
+    clear_memory(&request, sizeof(request));
 }
 
 int main(void)
 {
-    printf("[backend] starting authentication backend, pid=%d\n", getpid());
-    printf("[backend] socket path: %s\n", SOCKET_PATH);
+    int server_fd;
 
-    int server_fd = open_server_socket();
+    printf("[backend] pid: %d\n", getpid());
+    printf("[backend] socket: %s\n", SOCKET_PATH);
+
+    server_fd = make_server_socket();
 
     if (geteuid() == 0) {
-        permanently_drop_privileges();
+        drop_privileges();
     } else {
-        printf("[backend] not running as root; current effective uid: %d\n", geteuid());
-        printf("[backend] setresuid demonstration skipped because root is required\n");
+        show_proc_uid("running without sudo");
+        printf("[backend] run with sudo to show setresuid evidence\n");
     }
 
     while (1) {

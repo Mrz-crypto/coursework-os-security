@@ -1,0 +1,15 @@
+flowchart TD
+    A["User runs Frontend.c"] --> B["Frontend reads username and password"]
+    B --> C["Frontend connects to /tmp/coursework_auth.sock"]
+    C --> D["Backend accepts UNIX domain socket connection"]
+    D --> E["Backend checks peer UID with SO_PEERCRED"]
+    E --> F["Backend validates request format"]
+    F --> G["Backend compares credentials"]
+    G --> H["Backend clears password buffer"]
+    H --> I["Backend returns success or failure"]
+    I --> J["Frontend prints result and clears local buffer"]
+
+    K["Backend startup"] --> L["Create protected socket"]
+    L --> M["Print UID state"]
+    M --> N["Drop privileges with setresuid"]
+    N --> O["Verify privileges cannot be regained"]

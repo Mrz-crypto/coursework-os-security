@@ -1,0 +1,6 @@
+[slow_program] sleeping longer than sandbox allows
+[sandbox] supervising child pid=82
+[sandbox] wall-clock limit=5 seconds, CPU limit=3 seconds
+[sandbox] termination requested: wall-clock time limit exceeded
+[sandbox] child process has exited
+[sandbox] child killed by signal 15

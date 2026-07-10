@@ -1,0 +1,7 @@
+[backend] pid: 104
+[backend] socket: /tmp/coursework_auth.sock
+[backend] running without sudo effective uid: 1000
+[backend] running without sudo /proc: Uid:	1000	1000	1000	1000
+[backend] run with sudo to show setresuid evidence
+[backend] request from uid: 1000
+[backend] request from uid: 1000

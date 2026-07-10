@@ -3,6 +3,7 @@
 ## 1. Introduction
 
 Briefly explain that the coursework investigates operating system security mechanisms through C programs.
+Mention that the repository contains the code, diagrams, and supporting evidence for both tasks.
 
 ## 2. Task 1: Privilege Separated Password Validation
 
@@ -13,6 +14,7 @@ Explain the purpose of separating user input handling from privileged password v
 ### 2.2 Design
 
 Describe `Frontend.c`, `Backend.c`, the UNIX domain socket, and the authentication flow.
+Use `diagrams/task1-auth-flow.mmd` as the design diagram.
 
 ### 2.3 Implementation
 
@@ -28,6 +30,7 @@ Discuss:
 ### 2.4 Testing and Evidence
 
 Add screenshots/logs showing compilation, backend startup, UID change, socket permissions, and login results.
+Use `task1/evidence/README.md` as the checklist for what to capture.
 
 ### 2.5 Investigation Questions
 
@@ -42,6 +45,7 @@ Explain the purpose of running untrusted binaries under parent-process supervisi
 ### 3.2 Design
 
 Describe the parent-child model, monitor threads, resource policies, and signal-based termination.
+Use `diagrams/task2-sandbox-flow.mmd` as the design diagram.
 
 ### 3.3 Implementation
 
@@ -63,6 +67,8 @@ Add logs from:
 - `cpu_hog`.
 - `slow_program`.
 - `infinite_loop`.
+
+Use `task2/logs/README.md` for the commands that generate these logs.
 
 ### 3.5 Investigation Questions
 
