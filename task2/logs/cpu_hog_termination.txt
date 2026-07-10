@@ -1,5 +1,5 @@
 [cpu_hog] consuming CPU
-[sandbox] supervising child pid=76
+[sandbox] supervising child pid=39897
 [sandbox] wall-clock limit=5 seconds, CPU limit=3 seconds
 [sandbox] termination requested: CPU time limit exceeded
 [sandbox] child process has exited

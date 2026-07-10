@@ -1,0 +1,1 @@
+srw------- 1 blackeye root 0 Jul 10 23:22 /tmp/coursework_auth.sock

@@ -1,6 +1,6 @@
 [safe_program] starting harmless work
 [safe_program] finished normally
-[sandbox] supervising child pid=70
+[sandbox] supervising child pid=39763
 [sandbox] wall-clock limit=5 seconds, CPU limit=3 seconds
 [sandbox] child process has exited
 [sandbox] child exited with code 0
